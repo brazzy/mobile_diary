@@ -14,7 +14,7 @@ function createAuthHeaders() {
 
 /**
  * Fetches content for a specific day from the backend
- * @param {string} date - The date of the day
+ * @param {string} date - The date of the day, in the format "YYYY-MM-DD (EEE)" e.g. "2025-08-03 (Sun)"
  * @returns {Promise<Object>} - Object containing the fetched content and status information
  */
 async function fetchDay(date) {
@@ -28,6 +28,7 @@ async function fetchDay(date) {
     const response = await fetch(url, { headers });
     
     if(response.status == 404) {
+        const currentTimestamp = new Date().getTime();
         return {
             bag: "default",
             type: "text/vnd.tiddlywiki",
