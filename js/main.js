@@ -124,6 +124,18 @@ function initializeHeader() {
     // Add event listeners for the prev-day and next-day buttons
     document.getElementById('prev-day').addEventListener('click', navigateToPreviousDay);
     document.getElementById('next-day').addEventListener('click', navigateToNextDay);
+    
+    // Initialize date picker with current date and add event listener
+    const datePicker = document.getElementById('date-picker');
+    
+    // Format the date for the input (YYYY-MM-DD)
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    datePicker.value = `${year}-${month}-${day}`;
+    
+    // Add event listener for date changes
+    datePicker.addEventListener('change', navigateToSelectedDate);
 }
 
 /**
@@ -198,6 +210,30 @@ async function saveDiaryEntry() {
         const saveStatus = document.getElementById('status-message');
         saveStatus.textContent = `Error: ${error.message}`;
         saveStatus.className = 'status-message error';
+    }
+}
+
+/**
+ * Navigate to the selected date from the date picker
+ */
+async function navigateToSelectedDate(event) {
+    try {
+        // Get the selected date from the date picker
+        const selectedDate = new Date(event.target.value);
+        
+        // Ensure the date is valid
+        if (isNaN(selectedDate.getTime())) {
+            throw new Error('Invalid date selected');
+        }
+        
+        // Update the current date
+        currentDate = selectedDate;
+        
+        // Load the day data for the selected date
+        await loadDayForDate(currentDate);
+    } catch (error) {
+        console.error('Failed to navigate to selected date:', error);
+        alert('Failed to navigate to selected date: ' + error.message);
     }
 }
 
