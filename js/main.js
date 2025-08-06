@@ -61,9 +61,6 @@ async function loadDayForDate(date) {
         // Format the date for the API
         const formattedDate = formatDateForApi(date);
         
-        // Update the day message
-        document.getElementById('day-message').textContent = formattedDate;
-        
         // Fetch the day data
         currentDayData = await fetchDay(formattedDate);
         
@@ -108,6 +105,19 @@ function displayDayContent(dayData) {
     textElement.style.boxSizing = 'border-box';
         
     container.appendChild(textElement);
+    
+    const saveStatus = document.getElementById('status-message');
+    saveStatus.textContent = ' ';
+
+
+    // Create save button
+    const saveButton = document.createElement('button');
+    saveButton.id = 'save-diary-btn';
+    saveButton.textContent = 'Save';
+    saveButton.className = 'action-button';
+    saveButton.addEventListener('click', saveDiaryEntry);
+    container.appendChild(saveButton);
+    
 }
 
 function initializeHeader() {
@@ -153,6 +163,41 @@ async function navigateToNextDay() {
     } catch (error) {
         console.error('Failed to navigate to next day:', error);
         alert('Failed to navigate to next day: ' + error.message);
+    }
+}
+
+/**
+ * Save the current diary entry to the backend
+ */
+async function saveDiaryEntry() {
+    try {
+        // Get the text from the textarea
+        const textElement = document.getElementById('diary-text');
+        const updatedText = textElement.value;
+        
+        // Update the current day data with the new text
+        currentDayData.text = updatedText;
+        
+        // Save the updated day data to the backend
+        await updateDay(currentDayData);
+        
+        // Show success message
+        const saveStatus = document.getElementById('status-message');
+        saveStatus.textContent = 'Saved successfully!';
+        saveStatus.className = 'status-message success';
+        
+        // Clear the success message after 3 seconds
+        setTimeout(() => {
+            saveStatus.textContent = '';
+            saveStatus.className = 'status-message';
+        }, 3000);
+    } catch (error) {
+        console.error('Failed to save diary entry:', error);
+        
+        // Show error message
+        const saveStatus = document.getElementById('status-message');
+        saveStatus.textContent = `Error: ${error.message}`;
+        saveStatus.className = 'status-message error';
     }
 }
 
