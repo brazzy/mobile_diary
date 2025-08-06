@@ -30,7 +30,7 @@ async function initializeApp() {
         const formattedDate = `${year}-${month}-${day} (${dayName})`;
         
         // Update the day message
-        document.getElementById('day-message').textContent = formattedDate;
+        document.getElementById('day-message').textContent = '';
         
         // Fetch the day data
         currentDayData = await fetchDay(formattedDate);
