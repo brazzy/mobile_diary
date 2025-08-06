@@ -6,8 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
-// Global variable to store the current day data
+// Global variables to store the current day data and date
 let currentDayData = null;
+let currentDate = new Date();
 
 /**
  * Initialize the application
@@ -17,26 +18,11 @@ let currentDayData = null;
  */
 async function initializeApp() {
     try {
-        // Get the current date in the format required by the API: "YYYY-MM-DD (EEE)"
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
+        // Reset to current date
+        currentDate = new Date();
         
-        // Get day name abbreviation (Sun, Mon, etc.)
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const dayName = dayNames[now.getDay()];
-        
-        const formattedDate = `${year}-${month}-${day} (${dayName})`;
-        
-        // Update the day message
-        document.getElementById('day-message').textContent = '';
-        
-        // Fetch the day data
-        currentDayData = await fetchDay(formattedDate);
-        
-        // Display the day content in the UI
-        displayDayContent(currentDayData);
+        // Load the day data for the current date
+        await loadDayForDate(currentDate);
     } catch (error) {
         console.error('Failed to initialize app:', error);
         document.getElementById('diary-container').innerHTML = `
@@ -46,6 +32,46 @@ async function initializeApp() {
                 <p>Please check your settings and try again.</p>
             </div>
         `;
+    }
+}
+
+/**
+ * Format a date object into the format required by the API: "YYYY-MM-DD (EEE)"
+ * @param {Date} date - The date to format
+ * @returns {string} - Formatted date string
+ */
+function formatDateForApi(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    // Get day name abbreviation (Sun, Mon, etc.)
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayName = dayNames[date.getDay()];
+    
+    return `${year}-${month}-${day} (${dayName})`;
+}
+
+/**
+ * Load and display the day data for a specific date
+ * @param {Date} date - The date to load
+ */
+async function loadDayForDate(date) {
+    try {
+        // Format the date for the API
+        const formattedDate = formatDateForApi(date);
+        
+        // Update the day message
+        document.getElementById('day-message').textContent = formattedDate;
+        
+        // Fetch the day data
+        currentDayData = await fetchDay(formattedDate);
+        
+        // Display the day content in the UI
+        displayDayContent(currentDayData);
+    } catch (error) {
+        console.error(`Failed to load day for date ${date}:`, error);
+        throw error;
     }
 }
 
@@ -85,5 +111,50 @@ function displayDayContent(dayData) {
 }
 
 function initializeHeader() {
+    // Add event listeners for the prev-day and next-day buttons
+    document.getElementById('prev-day').addEventListener('click', navigateToPreviousDay);
+    document.getElementById('next-day').addEventListener('click', navigateToNextDay);
 }
+
+/**
+ * Navigate to the previous day
+ */
+async function navigateToPreviousDay() {
+    try {        
+        // Calculate the previous day
+        const prevDay = new Date(currentDate);
+        prevDay.setDate(prevDay.getDate() - 1);
+        
+        // Update the current date
+        currentDate = prevDay;
+        
+        // Load the day data for the new date
+        await loadDayForDate(currentDate);
+    } catch (error) {
+        console.error('Failed to navigate to previous day:', error);
+        alert('Failed to navigate to previous day: ' + error.message);
+    }
+}
+
+/**
+ * Navigate to the next day
+ */
+async function navigateToNextDay() {
+    try {
+        // Calculate the next day
+        const nextDay = new Date(currentDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        // Update the current date
+        currentDate = nextDay;
+        
+        // Load the day data for the new date
+        await loadDayForDate(currentDate);
+    } catch (error) {
+        console.error('Failed to navigate to next day:', error);
+        alert('Failed to navigate to next day: ' + error.message);
+    }
+}
+
+
 
