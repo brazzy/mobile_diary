@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     initializeHeader();
     initializeSettingsModal();
+    initializeLinkCombobox();
     initializeApp();
 });
 
@@ -237,5 +238,146 @@ async function navigateToSelectedDate(event) {
     }
 }
 
+/**
+ * Initialize the link combobox functionality
+ */
+function initializeLinkCombobox() {
+    const linkBtn = document.getElementById('link-btn');
+    const combobox = document.getElementById('link-combobox');
+    const closeBtn = document.getElementById('close-combobox');
+    const searchInput = document.getElementById('link-search');
+    const resultsList = document.getElementById('link-results');
+    
+    let debounceTimer;
+    let selectedIndex = -1;
+    
+    // Show combobox when link button is clicked
+    linkBtn.addEventListener('click', () => {
+        combobox.style.display = 'block';
+        searchInput.focus();
+    });
+    
+    // Hide combobox when close button is clicked
+    closeBtn.addEventListener('click', () => {
+        combobox.style.display = 'none';
+        searchInput.value = '';
+        resultsList.innerHTML = '';
+    });
+    
+    // Handle input with debounce
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        
+        // Reset selected index when input changes
+        selectedIndex = -1;
+        
+        const searchText = searchInput.value.trim();
+        if (searchText.length === 0) {
+            resultsList.innerHTML = '';
+            return;
+        }
+        
+        // Debounce for 500ms
+        debounceTimer = setTimeout(async () => {
+            try {
+                // Call the search function from api.js
+                const results = await search(searchText);
+                displaySearchResults(results);
+            } catch (error) {
+                console.error('Search failed:', error);
+                resultsList.innerHTML = `<li class="error">Error: ${error.message}</li>`;
+            }
+        }, 500);
+    });
+    
+    // Handle keyboard navigation in results
+    searchInput.addEventListener('keydown', (event) => {
+        const items = resultsList.querySelectorAll('li');
+        
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateSelectedItem(items);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateSelectedItem(items);
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            if (selectedIndex >= 0 && selectedIndex < items.length) {
+                // Insert selected item
+                insertLinkToTextarea(items[selectedIndex].textContent);
+            } else {
+                // Insert current input value
+                insertLinkToTextarea(searchInput.value);
+            }
+            // Close combobox
+            combobox.style.display = 'none';
+            searchInput.value = '';
+            resultsList.innerHTML = '';
+        } else if (event.key === 'Escape') {
+            // Close combobox
+            combobox.style.display = 'none';
+            searchInput.value = '';
+            resultsList.innerHTML = '';
+        }
+    });
+    
+    // Display search results in the list
+    function displaySearchResults(results) {
+        resultsList.innerHTML = '';
+        
+        if (results.length === 0) {
+            resultsList.innerHTML = '<li>No results found</li>';
+            return;
+        }
+        
+        results.forEach((result, index) => {
+            const li = document.createElement('li');
+            li.textContent = result;
+            li.addEventListener('click', () => {
+                insertLinkToTextarea(result);
+                combobox.style.display = 'none';
+                searchInput.value = '';
+                resultsList.innerHTML = '';
+            });
+            resultsList.appendChild(li);
+        });
+    }
+    
+    // Update the selected item in the list
+    function updateSelectedItem(items) {
+        // Remove selected class from all items
+        items.forEach(item => item.classList.remove('selected'));
+        
+        // Add selected class to current item
+        if (selectedIndex >= 0 && selectedIndex < items.length) {
+            items[selectedIndex].classList.add('selected');
+            // Ensure the selected item is visible
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+    
+    // Insert link to textarea at cursor position
+    function insertLinkToTextarea(text) {
+        const textarea = document.getElementById('diary-text');
+        if (!textarea) return;
+        
+        const startPos = textarea.selectionStart;
+        const endPos = textarea.selectionEnd;
+        const value = textarea.value;
+        
+        // Create the link format: [[text]]
+        const link = `[[${text}]]`;
+        
+        // Insert the link at cursor position
+        textarea.value = value.substring(0, startPos) + link + value.substring(endPos);
+        
+        // Set cursor position after the inserted link
+        const newCursorPos = startPos + link.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+        textarea.focus();
+    }
+}
 
 

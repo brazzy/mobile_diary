@@ -72,3 +72,28 @@ async function updateDay(dayData) {
         
     return dayData;
 }
+
+/**
+ * Searches for tiddlers matching the search text
+ * @param {string} searchText - The text to search for
+ * @returns {Promise<string[]>} - Array of matching tiddler titles
+ */
+async function search(searchText) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    if (!baseUrl) {
+        throw new Error('Missing base URL configuration.');
+    }
+
+    const headers = createAuthHeaders();
+    const filterValue = `[regexp[(?i).*${searchText}.*]]`;
+    const url = `${baseUrl}/recipes/default/tiddlers.json?filter=${encodeURIComponent(filterValue)}`;
+    
+    const response = await fetch(url, { headers });
+    
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+    
+    const tiddlers = await response.json();
+    
+    // Extract titles from the tiddlers array
+    return tiddlers.map(tiddler => tiddler.title);
+}

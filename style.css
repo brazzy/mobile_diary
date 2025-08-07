@@ -34,7 +34,7 @@ body {
     cursor: pointer;
 }
 
-#settings-btn {
+#settings-btn, #link-btn {
     padding: 7px;
     font-size: 1.2rem;
     cursor: pointer;
@@ -111,6 +111,70 @@ body {
     color: #dc3545;
 }
 
+/* Link combobox styles */
+.combobox-container {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.combobox-input-container {
+    display: flex;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#link-search {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#close-combobox {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0 0 10px;
+    color: #666;
+}
+
+.combobox-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.combobox-results li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.combobox-results li:last-child {
+    border-bottom: none;
+}
+
+.combobox-results li:hover {
+    background-color: #f5f5f5;
+}
+
+.combobox-results .selected {
+    background-color: #e9f5ff;
+}
+
 /* Responsive styles for small screens */
 @media screen and (max-width: 480px) {
     .modal { padding: 12px; width: 95%; }
@@ -123,5 +187,9 @@ body {
         padding: 8px 16px;
         font-size: 0.95rem;
         width: 100%;
+    }
+    
+    .combobox-container {
+        width: 95%;
     }
 }

@@ -11,8 +11,18 @@
         <button id="prev-day" class="day-nav-btn">&lt;</button>
         <input type="date" id="date-picker" name="date-picker" aria-label="Select date">
         <button id="settings-btn">⚙️</button>
+        <button id="link-btn" title="Insert link">🔗</button>
         <button id="next-day" class="day-nav-btn">&gt;</button>
     </header>
+    
+    <!-- Link Search Combobox -->
+    <div id="link-combobox" class="combobox-container" style="display: none;">
+        <div class="combobox-input-container">
+            <input type="text" id="link-search" placeholder="Search for links..." autocomplete="off">
+            <button id="close-combobox">✕</button>
+        </div>
+        <ul id="link-results" class="combobox-results"></ul>
+    </div>
 
     <div id="status-message">Loading day...</div>
 
