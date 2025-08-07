@@ -6,7 +6,7 @@ body {
     max-width: 100%;
     overflow-x: hidden;
     touch-action: pan-y;
-    margin: 0;
+    margin: 5px;
 }
 
 /* Header styles */
@@ -25,8 +25,8 @@ body {
 }
 
 #date-picker {
-    width: auto;
-    padding: 8px;
+    width: 20px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 0.9rem;
@@ -35,17 +35,12 @@ body {
 }
 
 #settings-btn {
-    padding: 10px 15px;
+    padding: 7px;
     font-size: 1.2rem;
     cursor: pointer;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
 }
 
 .day-nav-btn {
