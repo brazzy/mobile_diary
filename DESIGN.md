@@ -5,6 +5,7 @@
 - It shows a diary entry for the current day and allows to edit it.
 - The user can navigate to the previous or next day via buttons in the header or swiping.
 - A date selector allows skipping to any day.
+- A combobox allows to insert links into the diary entry.
 
 # BACKEND
 - The [API of TiddlyWiki](https://tiddlywiki.com/#WebServer%20API) is used to retrieve, create and update diary entries.
@@ -16,6 +17,5 @@
 - style.css contains the stylesheet
 - JavaScript code is organized into modular components in the js/ directory:
   - main.js: Main entry point that initializes all components
-  - init.js: Setup, initialization, and helper functions
   - api.js: Communication with the backend TiddlyWiki server
   - settings.js: Settings management functionality
