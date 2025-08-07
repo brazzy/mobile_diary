@@ -15,7 +15,6 @@ body {
     justify-content: center;
     align-items: center;
     padding: 10px 15px;
-    margin-bottom: 15px;
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
     position: sticky;
@@ -96,19 +95,21 @@ body {
     background-color: #1e7e34;
 }
 
-.status-message {
-    display: block;
-    margin-top: 10px;
-    padding: 5px;
-    font-size: 0.9rem;
+#status-message {
+    margin-top: 5px;
+    margin-bottom: 0px;
 }
 
-.status-message.success {
+#status-message.success {
     color: #28a745;
 }
 
-.status-message.error {
+#status-message.error {
     color: #dc3545;
+}
+
+#diary-title {
+    margin: 8px;
 }
 
 /* Link combobox styles */

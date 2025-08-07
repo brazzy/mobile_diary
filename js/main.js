@@ -108,7 +108,7 @@ function displayDayContent(dayData) {
     container.appendChild(textElement);
     
     const saveStatus = document.getElementById('status-message');
-    saveStatus.textContent = ' ';
+    saveStatus.textContent = '\u00a0';
 
 
     // Create save button
@@ -197,12 +197,12 @@ async function saveDiaryEntry() {
         // Show success message
         const saveStatus = document.getElementById('status-message');
         saveStatus.textContent = 'Saved successfully!';
-        saveStatus.className = 'status-message success';
+        saveStatus.className = 'success';
         
         // Clear the success message after 3 seconds
         setTimeout(() => {
-            saveStatus.textContent = '';
-            saveStatus.className = 'status-message';
+            saveStatus.textContent = '\u00a0';
+            saveStatus.className = '';
         }, 3000);
     } catch (error) {
         console.error('Failed to save diary entry:', error);
@@ -210,7 +210,7 @@ async function saveDiaryEntry() {
         // Show error message
         const saveStatus = document.getElementById('status-message');
         saveStatus.textContent = `Error: ${error.message}`;
-        saveStatus.className = 'status-message error';
+        saveStatus.className = 'error';
     }
 }
 
