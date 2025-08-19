@@ -112,15 +112,95 @@ body {
     margin: 8px;
 }
 
+/* Tag chips styles */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 8px;
+    align-items: center;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e9ecef;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+    color: #495057;
+    margin-right: 5px;
+    user-select: none;
+}
+
+.tag-chip .remove-tag {
+    margin-left: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #ced4da;
+    color: #495057;
+}
+
+.tag-chip .remove-tag:hover {
+    background-color: #adb5bd;
+    color: white;
+}
+
+.add-tag-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #28a745;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+}
+
+.add-tag-btn:hover {
+    background-color: #218838;
+}
+
+/* Tag selection dropdown */
+.tag-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 200px;
+}
+
+.tag-dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tag-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.tag-dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
 #diary-text {
     width: 100%;
     box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-family: inherit;
-    font-size: 1rem;
-    margin-bottom: 10px;
 }
 
 /* Link combobox styles */

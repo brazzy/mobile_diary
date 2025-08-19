@@ -82,6 +82,9 @@ function displayDayContent(dayData) {
     const textElement = document.getElementById('diary-text');
     textElement.value = dayData.text || '';
     
+    // Update tags
+    displayTags(dayData.tags || 'Journal');
+    
     // Update status message
     const saveStatus = document.getElementById('status-message');
     saveStatus.textContent = '\u00a0';
@@ -92,7 +95,6 @@ function displayDayContent(dayData) {
     const newSaveButton = saveButton.cloneNode(true);
     saveButton.parentNode.replaceChild(newSaveButton, saveButton);
     newSaveButton.addEventListener('click', saveDiaryEntry);
-    
 }
 
 function initializeHeader() {
@@ -209,6 +211,144 @@ async function navigateToSelectedDate(event) {
     } catch (error) {
         console.error('Failed to navigate to selected date:', error);
         alert('Failed to navigate to selected date: ' + error.message);
+    }
+}
+
+/**
+ * Display tags as chips in the tags container
+ * @param {string} tagsString - Space-separated list of tags
+ */
+function displayTags(tagsString) {
+    const tagsContainer = document.getElementById('tags-container');
+    tagsContainer.innerHTML = ''; // Clear existing tags
+    
+    // Parse tags from space-separated string
+    const tags = tagsString.split(' ').filter(tag => tag.trim() !== '');
+    
+    // Create a chip for each tag
+    tags.forEach(tag => {
+        const tagChip = document.createElement('div');
+        tagChip.className = 'tag-chip';
+        tagChip.textContent = tag;
+        
+        // Add remove button for all tags except 'Journal'
+        if (tag !== 'Journal') {
+            const removeBtn = document.createElement('span');
+            removeBtn.className = 'remove-tag';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', () => removeTag(tag));
+            tagChip.appendChild(removeBtn);
+        }
+        
+        tagsContainer.appendChild(tagChip);
+    });
+    
+    // Add the 'add tag' button
+    const addTagBtn = document.createElement('button');
+    addTagBtn.className = 'add-tag-btn';
+    addTagBtn.textContent = '+';
+    addTagBtn.setAttribute('title', 'Add tag');
+    addTagBtn.addEventListener('click', showTagDropdown);
+    tagsContainer.appendChild(addTagBtn);
+}
+
+/**
+ * Remove a tag from the current day data
+ * @param {string} tagToRemove - The tag to remove
+ */
+function removeTag(tagToRemove) {
+    if (!currentDayData || !currentDayData.tags) return;
+    
+    // Parse current tags
+    const tags = currentDayData.tags.split(' ').filter(tag => tag.trim() !== '');
+    
+    // Remove the specified tag
+    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    
+    // Update the day data
+    currentDayData.tags = updatedTags.join(' ');
+    
+    // Update the display
+    displayTags(currentDayData.tags);
+}
+
+/**
+ * Show dropdown with available tags to add
+ * @param {Event} event - The click event
+ */
+function showTagDropdown(event) {
+    // Available tags
+    const availableTags = [
+        'Lexcom', 'Sport', 'Bücher', 'Film', 'Serie', 'Videospiel', 
+        'Gesundheit', 'Urlaub', 'Familie', 'Sex', 'Brettspiel'
+    ];
+    
+    // Get current tags
+    const currentTags = currentDayData.tags ? 
+        currentDayData.tags.split(' ').filter(tag => tag.trim() !== '') : 
+        ['Journal'];
+    
+    // Filter out tags that are already present
+    const tagsToShow = availableTags.filter(tag => !currentTags.includes(tag));
+    
+    // If there are no tags to add, show a message
+    if (tagsToShow.length === 0) {
+        alert('All available tags are already added.');
+        return;
+    }
+    
+    // Create dropdown element
+    const dropdown = document.createElement('div');
+    dropdown.className = 'tag-dropdown';
+    
+    // Position the dropdown near the add button
+    const rect = event.target.getBoundingClientRect();
+    dropdown.style.top = `${rect.bottom + window.scrollY + 5}px`;
+    dropdown.style.left = `${rect.left + window.scrollX}px`;
+    
+    // Add tag options to the dropdown
+    tagsToShow.forEach(tag => {
+        const tagItem = document.createElement('div');
+        tagItem.className = 'tag-dropdown-item';
+        tagItem.textContent = tag;
+        tagItem.addEventListener('click', () => addTag(tag, dropdown));
+        dropdown.appendChild(tagItem);
+    });
+    
+    // Add the dropdown to the document
+    document.body.appendChild(dropdown);
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!dropdown.contains(e.target) && e.target !== event.target) {
+            document.body.removeChild(dropdown);
+            document.removeEventListener('click', closeDropdown);
+        }
+    });
+}
+
+/**
+ * Add a tag to the current day data
+ * @param {string} tagToAdd - The tag to add
+ * @param {HTMLElement} dropdown - The dropdown element to remove
+ */
+function addTag(tagToAdd, dropdown) {
+    if (!currentDayData) return;
+    
+    // Initialize tags if not present
+    if (!currentDayData.tags) {
+        currentDayData.tags = 'Journal';
+    }
+    
+    // Add the new tag
+    currentDayData.tags += ` ${tagToAdd}`;
+    
+    // Update the display
+    displayTags(currentDayData.tags);
+    
+    // Remove the dropdown
+    if (dropdown && dropdown.parentNode) {
+        dropdown.parentNode.removeChild(dropdown);
     }
 }
 
