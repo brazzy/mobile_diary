@@ -26,13 +26,7 @@ async function initializeApp() {
         await loadDayForDate(currentDate);
     } catch (error) {
         console.error('Failed to initialize app:', error);
-        document.getElementById('diary-container').innerHTML = `
-            <div class="error-message">
-                <h3>Error loading diary</h3>
-                <p>${error.message}</p>
-                <p>Please check your settings and try again.</p>
-            </div>
-        `;
+        alert('Failed to load diary: ' + error.message);
     }
 }
 
