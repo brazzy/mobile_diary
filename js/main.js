@@ -80,44 +80,24 @@ async function loadDayForDate(date) {
 function displayDayContent(dayData) {
     if (!dayData) return;
     
-    // Get the container
-    const container = document.getElementById('diary-container');
-    
-    // Clear previous content (except the current-day element)
-    const currentDayElement = document.getElementById('current-day');
-    container.innerHTML = '';
-    container.appendChild(currentDayElement);
-    
-    // Create title element (header)
-    const titleElement = document.createElement('h2');
-    titleElement.id = 'diary-title';
+    // Update the title element
+    const titleElement = document.getElementById('diary-title');
     titleElement.textContent = dayData.title || 'Untitled';
-    container.appendChild(titleElement);
     
-    // Create text element (textarea)
-    const textElement = document.createElement('textarea');
-    textElement.id = 'diary-text';
+    // Update the textarea element
+    const textElement = document.getElementById('diary-text');
     textElement.value = dayData.text || '';
-    textElement.placeholder = 'Write your diary entry here...';
     
-    // Set appropriate height for the textarea
-    textElement.rows = 15;
-    textElement.style.width = '100%';
-    textElement.style.boxSizing = 'border-box';
-        
-    container.appendChild(textElement);
-    
+    // Update status message
     const saveStatus = document.getElementById('status-message');
     saveStatus.textContent = '\u00a0';
-
-
-    // Create save button
-    const saveButton = document.createElement('button');
-    saveButton.id = 'save-diary-btn';
-    saveButton.textContent = 'Save';
-    saveButton.className = 'action-button';
-    saveButton.addEventListener('click', saveDiaryEntry);
-    container.appendChild(saveButton);
+    
+    // Ensure save button has event listener
+    const saveButton = document.getElementById('save-diary-btn');
+    // Remove any existing event listeners to prevent duplicates
+    const newSaveButton = saveButton.cloneNode(true);
+    saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+    newSaveButton.addEventListener('click', saveDiaryEntry);
     
 }
 
