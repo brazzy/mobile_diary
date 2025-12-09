@@ -1,9 +1,12 @@
 // main.js - Main entry point for the application
+import { fetchDay, updateDay, search, uploadImage } from './api.js';
+import { initializeSettingsModal } from './settings.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeHeader();
     initializeSettingsModal();
     initializeLinkCombobox();
+    initializeImageUpload();
     initializeApp();
 });
 
@@ -494,4 +497,107 @@ function initializeLinkCombobox() {
     }
 }
 
+/**
+ * Initialize the image upload functionality
+ */
+function initializeImageUpload() {
+    const uploadBtn = document.getElementById('upload-btn');
+    
+    uploadBtn.addEventListener('click', () => {
+        // Create a hidden file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        // Trigger the file input click
+        fileInput.click();
+        
+        // Handle file selection
+        fileInput.addEventListener('change', async (event) => {
+            try {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Show status message
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.textContent = 'Uploading image...';
+                statusMessage.className = '';
+                
+                // Read the file as data URL
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        // Get the base64 data (remove the data URL prefix)
+                        const base64Data = e.target.result.split(',')[1];
+                        
+                        // Use the file name as the title
+                        const fileName = file.name;
+                        
+                        // Call the uploadImage function from api.js
+                        const result = await uploadImage(base64Data, fileName);
+                        
+                        // Insert the link to the uploaded image in the diary text
+                        insertImageLinkToTextarea(fileName);
+                        
+                        // Show success message
+                        statusMessage.textContent = 'Image uploaded successfully!';
+                        statusMessage.className = 'success';
+                        
+                        // Clear the success message after 3 seconds
+                        setTimeout(() => {
+                            statusMessage.textContent = '\u00a0';
+                            statusMessage.className = '';
+                        }, 3000);
+                    } catch (error) {
+                        console.error('Failed to upload image:', error);
+                        
+                        // Show error message
+                        statusMessage.textContent = `Error uploading image: ${error.message}`;
+                        statusMessage.className = 'error';
+                    }
+                };
+                
+                reader.onerror = (error) => {
+                    console.error('Error reading file:', error);
+                    statusMessage.textContent = 'Error reading file';
+                    statusMessage.className = 'error';
+                };
+                
+                // Read the file as data URL
+                reader.readAsDataURL(file);
+            } finally {
+                // Clean up the file input
+                document.body.removeChild(fileInput);
+            }
+        });
+    });
+}
 
+/**
+ * Insert image link to textarea at cursor position
+ * @param {string} fileName - The file name of the uploaded image
+ */
+function insertImageLinkToTextarea(fileName) {
+    const textarea = document.getElementById('diary-text');
+    if (!textarea) return;
+    
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const value = textarea.value;
+    
+    // Create the image link format: ![fileName](fileName)
+    const imageLink = `[img[${fileName}]]`;
+    
+    // Insert the image link at cursor position
+    textarea.value = value.substring(0, startPos) + imageLink + value.substring(endPos);
+    
+    // Set cursor position after the inserted link
+    const newCursorPos = startPos + imageLink.length;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    textarea.focus();
+}
+
+// Export functions that need to be accessed by other modules
+export { initializeApp };

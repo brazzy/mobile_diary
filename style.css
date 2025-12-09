@@ -33,7 +33,7 @@ body {
     cursor: pointer;
 }
 
-#settings-btn, #link-btn {
+#settings-btn, #link-btn, #upload-btn {
     padding: 7px;
     font-size: 1.2rem;
     cursor: pointer;

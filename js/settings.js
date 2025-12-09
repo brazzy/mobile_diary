@@ -24,3 +24,5 @@ function initializeSettingsModal() {
 
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
 }
+
+export { initializeSettingsModal };
