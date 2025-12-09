@@ -97,3 +97,48 @@ async function search(searchText) {
     // Extract titles from the tiddlers array
     return tiddlers.map(tiddler => tiddler.title);
 }
+
+/**
+ * Uploads an image to the server
+ * @param {string} imageData - The base64 encoded image data
+ * @param {string} title - The title for the image
+ * @returns {Promise<Object>} - Object containing the uploaded image data and status information
+ */
+async function uploadImage(imageData, title) {
+    const baseUrl = localStorage.getItem('baseUrl');
+    if (!baseUrl || !title) {
+        throw new Error('Missing configuration or image title.');
+    }
+
+    const headers = createAuthHeaders();
+    headers.append('Content-Type', 'application/json');
+    headers.append('X-Requested-With', 'TiddlyWiki');
+
+    // Determine image type based on title suffix
+    const imageType = title.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+    
+    // Create the data object
+    const imageObject = {
+        bag: "default",
+        title: title,
+        text: imageData,  // base64 encoded image data
+        type: imageType,
+        created: new Date().getTime(),
+        modified: new Date().getTime()
+    };
+
+    // Send the image data to the server
+    const url = `${baseUrl}/recipes/default/tiddlers/${encodeURIComponent(title)}`;
+    const putResponse = await fetch(url, {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(imageObject)
+    });
+        
+    if (!putResponse.ok) throw new Error(`HTTP Error uploading image: ${putResponse.status}`);
+        
+    return imageObject;
+}
+
+// Export the API functions
+export { fetchDay, updateDay, search, uploadImage };
