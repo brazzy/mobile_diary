@@ -100,7 +100,7 @@ async function search(searchText) {
 
 /**
  * Uploads an image to the server
- * @param {string} imageData - The base64 encoded image data
+ * @param {ArrayBuffer} imageData - The image data as ArrayBuffer
  * @param {string} title - The title for the image
  * @returns {Promise<Object>} - Object containing the uploaded image data and status information
  */
@@ -109,22 +109,48 @@ async function uploadImage(imageData, title) {
     if (!baseUrl || !title) {
         throw new Error('Missing configuration or image title.');
     }
+    // Determine image type based on title suffix
+    const imageType = title.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+
+    // Variable to store the final image data
+    let base64ImageData;
+
+    // Dynamically load the Jimp library
+    try {
+        // Create a script element to load the Jimp library
+        if (!window.Jimp) {
+            const { Jimp } = await import('/files/jimp_1.6.0.js');
+            window.Jimp = Jimp;
+        }
+        
+        // Create a Jimp image from the ArrayBuffer
+        const jimpImage = await window.Jimp.fromBuffer(imageData);
+        
+        // Check if the image is wider than 900 pixels
+        if (jimpImage.bitmap.width > 900) {
+            // Resize the image to 900 width while maintaining aspect ratio
+            jimpImage.resize({ w: 900 });
+        }
+        
+        // Convert to base64 for storage
+        base64ImageData = await jimpImage.getBase64(imageType, {quality: 80});
+        // remove data url prefic
+        base64ImageData = base64ImageData.split(',')[1];
+    } catch (error) {
+        console.error('Image processing failed:', error);
+        throw new Error('Failed to process image data');
+    }
 
     const headers = createAuthHeaders();
     headers.append('Content-Type', 'application/json');
     headers.append('X-Requested-With', 'TiddlyWiki');
-
-    // Determine image type based on title suffix
-    const imageType = title.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
     
     // Create the data object
     const imageObject = {
-        bag: "default",
         title: title,
-        text: imageData,  // base64 encoded image data
+        text: base64ImageData,  // base64 encoded image data
         type: imageType,
         created: new Date().getTime(),
-        modified: new Date().getTime()
     };
 
     // Send the image data to the server

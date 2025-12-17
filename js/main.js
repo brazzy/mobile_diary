@@ -525,18 +525,18 @@ function initializeImageUpload() {
                 statusMessage.textContent = 'Uploading image...';
                 statusMessage.className = '';
                 
-                // Read the file as data URL
+                // Read the file as ArrayBuffer for Jimp compatibility
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     try {
-                        // Get the base64 data (remove the data URL prefix)
-                        const base64Data = e.target.result.split(',')[1];
+                        // Get the ArrayBuffer result
+                        const arrayBuffer = e.target.result;
                         
                         // Use the file name as the title
                         const fileName = file.name;
                         
-                        // Call the uploadImage function from api.js
-                        const result = await uploadImage(base64Data, fileName);
+                        // Call the uploadImage function from api.js with the ArrayBuffer
+                        const result = await uploadImage(arrayBuffer, fileName);
                         
                         // Insert the link to the uploaded image in the diary text
                         insertImageLinkToTextarea(fileName);
@@ -565,8 +565,8 @@ function initializeImageUpload() {
                     statusMessage.className = 'error';
                 };
                 
-                // Read the file as data URL
-                reader.readAsDataURL(file);
+                // Read the file as ArrayBuffer for Jimp compatibility
+                reader.readAsArrayBuffer(file);
             } finally {
                 // Clean up the file input
                 document.body.removeChild(fileInput);
