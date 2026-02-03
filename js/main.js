@@ -218,15 +218,89 @@ async function navigateToSelectedDate(event) {
 }
 
 /**
+ * Parse TiddlyWiki tags string, handling both regular tags and double-bracketed tags
+ * @param {string} tagsString - Tags string from TiddlyWiki
+ * @returns {string[]} - Array of parsed tag names
+ */
+function parseTiddlyWikiTags(tagsString) {
+    if (!tagsString || tagsString.trim() === '') {
+        return [];
+    }
+    
+    const tags = [];
+    let i = 0;
+    const length = tagsString.length;
+    
+    while (i < length) {
+        // Skip whitespace
+        while (i < length && /\s/.test(tagsString[i])) {
+            i++;
+        }
+        
+        if (i >= length) break;
+        
+        // Check if we have a double-bracketed tag
+        if (tagsString.substr(i, 2) === '[[') {
+            // Find the closing brackets
+            const start = i + 2;
+            let end = tagsString.indexOf(']]', start);
+            
+            if (end === -1) {
+                // No closing brackets found, treat as regular tag
+                const tag = tagsString.substring(i).trim();
+                if (tag) tags.push(tag);
+                break;
+            }
+            
+            // Extract the tag content
+            const tag = tagsString.substring(start, end).trim();
+            if (tag) tags.push(tag);
+            
+            i = end + 2;
+        } else {
+            // Regular tag - find next space or end
+            let start = i;
+            while (i < length && !/\s/.test(tagsString[i]) && tagsString.substr(i, 2) !== '[[') {
+                i++;
+            }
+            
+            const tag = tagsString.substring(start, i).trim();
+            if (tag) tags.push(tag);
+        }
+    }
+    
+    return tags;
+}
+
+/**
+ * Rebuild a TiddlyWiki tags string from an array of tag names
+ * @param {string[]} tags - Array of tag names
+ * @returns {string} - TiddlyWiki formatted tags string
+ */
+function rebuildTiddlyWikiTagsString(tags) {
+    if (!tags || tags.length === 0) {
+        return '';
+    }
+    
+    return tags.map(tag => {
+        // If tag contains spaces, wrap it in double brackets
+        if (tag.includes(' ')) {
+            return `[[${tag}]]`;
+        }
+        return tag;
+    }).join(' ');
+}
+
+/**
  * Display tags as chips in the tags container
- * @param {string} tagsString - Space-separated list of tags
+ * @param {string} tagsString - Space-separated list of tags, with tags containing spaces wrapped in [[double brackets]]
  */
 function displayTags(tagsString) {
     const tagsContainer = document.getElementById('tags-container');
     tagsContainer.innerHTML = ''; // Clear existing tags
     
-    // Parse tags from space-separated string
-    const tags = tagsString.split(' ').filter(tag => tag.trim() !== '');
+    // Parse tags properly handling double-bracketed tags
+    const tags = parseTiddlyWikiTags(tagsString);
     
     // Create a chip for each tag
     tags.forEach(tag => {
@@ -257,19 +331,23 @@ function displayTags(tagsString) {
 
 /**
  * Remove a tag from the current day data
- * @param {string} tagToRemove - The tag to remove
+ * @param {string} tagToRemove - The tag to remove (display name, without brackets)
  */
 function removeTag(tagToRemove) {
     if (!currentDayData || !currentDayData.tags) return;
     
-    // Parse current tags
-    const tags = currentDayData.tags.split(' ').filter(tag => tag.trim() !== '');
+    // Parse current tags to get the display names
+    const currentTags = parseTiddlyWikiTags(currentDayData.tags);
     
-    // Remove the specified tag
-    const updatedTags = tags.filter(tag => tag !== tagToRemove);
+    // Find the tag to remove in the parsed list
+    const tagIndex = currentTags.indexOf(tagToRemove);
+    if (tagIndex === -1) return;
     
-    // Update the day data
-    currentDayData.tags = updatedTags.join(' ');
+    // Remove the tag from the parsed list
+    currentTags.splice(tagIndex, 1);
+    
+    // Rebuild the tags string in TiddlyWiki format
+    currentDayData.tags = rebuildTiddlyWikiTagsString(currentTags);
     
     // Update the display
     displayTags(currentDayData.tags);
@@ -286,9 +364,9 @@ function showTagDropdown(event) {
         'Gesundheit', 'Urlaub', 'Familie', 'Sex', 'Brettspiel'
     ];
     
-    // Get current tags
+    // Get current tags using the parser
     const currentTags = currentDayData.tags ? 
-        currentDayData.tags.split(' ').filter(tag => tag.trim() !== '') : 
+        parseTiddlyWikiTags(currentDayData.tags) : 
         ['Journal'];
     
     // Filter out tags that are already present
@@ -343,8 +421,16 @@ function addTag(tagToAdd, dropdown) {
         currentDayData.tags = 'Journal';
     }
     
-    // Add the new tag
-    currentDayData.tags += ` ${tagToAdd}`;
+    // Parse current tags
+    const currentTags = parseTiddlyWikiTags(currentDayData.tags);
+    
+    // Add the new tag if it's not already present
+    if (!currentTags.includes(tagToAdd)) {
+        currentTags.push(tagToAdd);
+        
+        // Rebuild the tags string in TiddlyWiki format
+        currentDayData.tags = rebuildTiddlyWikiTagsString(currentTags);
+    }
     
     // Update the display
     displayTags(currentDayData.tags);
