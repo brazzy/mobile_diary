@@ -13,6 +13,23 @@ function createAuthHeaders() {
 }
 
 /**
+ * Creates a UTC timestamp in the format "YYYYMMDDHHMMSSsss"
+ * @returns {string} UTC timestamp string
+ */
+function createUTCTimestamp() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getUTCMilliseconds()).padStart(3, '0');
+    
+    return `${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+}
+
+/**
  * Fetches content for a specific day from the backend
  * @param {string} date - The date of the day, in the format "YYYY-MM-DD (EEE)" e.g. "2025-08-03 (Sun)"
  * @returns {Promise<Object>} - Object containing the fetched content and status information
@@ -28,7 +45,7 @@ async function fetchDay(date) {
     const response = await fetch(url, { headers });
     
     if(response.status == 404) {
-        const currentTimestamp = new Date().getTime();
+        const currentTimestamp = createUTCTimestamp();
         return {
             bag: "default",
             type: "text/vnd.tiddlywiki",
@@ -57,7 +74,7 @@ async function updateDay(dayData) {
     headers.append('Content-Type', 'application/json');
     headers.append('X-Requested-With', 'TiddlyWiki');
 
-    const currentTimestamp = new Date().getTime();
+    const currentTimestamp = createUTCTimestamp();
     dayData.modified = currentTimestamp;
 
     // Send the day data to the server
@@ -150,7 +167,7 @@ async function uploadImage(imageData, title) {
         title: title,
         text: base64ImageData,  // base64 encoded image data
         type: imageType,
-        created: new Date().getTime(),
+        created: createUTCTimestamp(),
     };
 
     // Send the image data to the server
